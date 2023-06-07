@@ -6,6 +6,7 @@
 #include "OnlineSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSubsystem.h"
 
 
 void UMenuSystem::MenuSetup(int32 NumConnections, FString TypeOfMatch)
@@ -68,11 +69,7 @@ bool UMenuSystem::Initialize()
 	return true;
 }
 
-void UMenuSystem::NativeDestruct()
-{
-	MenuTearDown();
-	Super::NativeDestruct();
-}
+
 
 void UMenuSystem::OnCreateSession(bool bWasSuccessful)
 {
@@ -99,10 +96,41 @@ void UMenuSystem::OnCreateSession(bool bWasSuccessful)
 
 void UMenuSystem::OnFindSession(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccesful)
 {
+
+	if (OnlineSessionsSubsystem == nullptr)
+	{
+		return;
+	}
+	for (auto Result : SearchResults)
+	{
+		FString SettingsValue;
+		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
+		if (SettingsValue == MatchType)
+		{
+			OnlineSessionsSubsystem->JoinSession(Result);
+			return;
+		}
+	}
 }
 
 void UMenuSystem::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if (Subsystem)
+	{
+		IOnlineSessionPtr SessionInterface = Subsystem->GetSessionInterface();
+		if (SessionInterface.IsValid())
+		{
+			FString Address;
+			SessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+
+			APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+			if (PlayerController)
+			{
+				PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+			}
+		}
+	}
 }
 
 void UMenuSystem::OnDestroySession(bool bWasSuccessful)
@@ -127,9 +155,25 @@ void UMenuSystem::HostButtonClicked()
 
 void UMenuSystem::JoinButtonClicked()
 {
-	if (GEngine)
+	if (OnlineSessionsSubsystem)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("Join Button Clicked"));
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Yellow,
+				FString(TEXT("Join Button Clicked")));
+		}
+		OnlineSessionsSubsystem->FindSession(10000);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Yellow,
+				FString(TEXT("Finding Session")));
+		}
 	}
 }
 
@@ -148,4 +192,10 @@ void UMenuSystem::MenuTearDown()
 			
 		}
 	}
+}
+
+void UMenuSystem::NativeDestruct()
+{
+	MenuTearDown();
+	Super::NativeDestruct();
 }
