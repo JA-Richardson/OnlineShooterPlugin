@@ -7,6 +7,17 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSessionsSubsystem.generated.h"
 
+
+//
+//Declaring custom delegates for the Menu class
+//
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnCreateSessionComplete, bool, bWasSuccesful);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FMultiplayerOnFindSessionsComplete, const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccesful);
+DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerOnJoinSessionComplete, EOnJoinSessionCompleteResult::Type Result);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnDestroySessionComplete, bool, bWasSuccesful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnStartSessionComplete, bool, bWasSuccesful);
+
 /**
  * 
  */
@@ -26,6 +37,16 @@ public:
 	void JoinSession(const FOnlineSessionSearchResult& SearchResult);
 	void DestroySession();
 	void StartSession();
+
+	//
+	//Custom delegates for the menu class
+	//
+	
+	FMultiplayerOnCreateSessionComplete MultiplayerOnCreateSessionComplete;
+	FMultiplayerOnFindSessionsComplete MultiplayerOnFindSessionsComplete;
+	FMultiplayerOnJoinSessionComplete MultiplayerOnJoinSessionComplete;
+	FMultiplayerOnDestroySessionComplete MultiplayerOnDestroySessionComplete;
+	FMultiplayerOnStartSessionComplete MultiplayerOnStartSessionComplete;
 	
 protected:
 
@@ -42,6 +63,8 @@ protected:
 	
 private:
 	IOnlineSessionPtr SessionInterface;
+
+	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
 	//
 	// To add to the Online Session Interface delegate list.

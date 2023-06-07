@@ -16,11 +16,24 @@ class ONLINESESSIONS_API UMenuSystem : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void MenuSetup();
+	void MenuSetup(int32 NumConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")));
 
 protected:
 	virtual bool Initialize() override;
-	
+	virtual void NativeDestruct() override;
+
+	//
+	//Callbacks for custom delegates in UOnlineSessionsSubsystem
+	//
+	UFUNCTION()
+	void OnCreateSession(bool bWasSuccessful);
+	void OnFindSession(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccesful);
+	void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySession(bool bWasSuccessful);
+	UFUNCTION()
+	void OnStartSession(bool bWasSuccessful);
+
 private:
 	
 	UPROPERTY(meta = (BindWidget))
@@ -34,6 +47,11 @@ private:
 	UFUNCTION()
 	void JoinButtonClicked();
 
+	void MenuTearDown();
+
 	//Subsystem designed to handle all online session functionality
 	class UOnlineSessionsSubsystem* OnlineSessionsSubsystem;
+
+	int32 NumPublicConnections{ 4 };
+	FString MatchType{ TEXT("FreeForAll") };
 };
