@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "MenuSystem.generated.h"
 
 /**
@@ -39,7 +40,7 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostButton;
 	UPROPERTY(meta = (BindWidget))
-	UButton* JoinButton;
+	class UButton* JoinButton;
 
 	UFUNCTION()
 	void HostButtonClicked();
