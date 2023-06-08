@@ -168,38 +168,10 @@ void UMenuSystem::OnStartSession(bool bWasSuccessful)
 void UMenuSystem::HostButtonClicked()
 {
 
+	HostButton->SetIsEnabled(false);
 	if (OnlineSessionsSubsystem)
 	{
-
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			if (!World->ServerTravel(PathToLobby))
-			{
-
-
-				if (GEngine)
-				{
-					GEngine->AddOnScreenDebugMessage(3, 10.f, FColor::Red, FString(TEXT("SERVER TRAVEL FAILED")));
-
-				}
-			}
-		}
-		else
-		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(3, 10.f, FColor::Red, FString(TEXT("NO WORLD POINTER")));
-
-			}
-
-		}
-
-
 		OnlineSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
-		HostButton->SetIsEnabled(false);
-		JoinButton->SetIsEnabled(false);
-
 	}
 }
 
@@ -232,44 +204,10 @@ void UMenuSystem::JoinButtonClicked()
 
 void UMenuSystem::StartButtonClicked()
 {
+	StartButton->SetIsEnabled(false);
 	if (OnlineSessionsSubsystem)
 	{
-
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			if (!World->ServerTravel(PathToGameMap))
-			{
-
-
-				if (GEngine)
-				{
-					GEngine->AddOnScreenDebugMessage(3, 10.f, FColor::Red, FString(TEXT("SERVER TRAVEL FAILED")));
-
-				}
-			}
-		}
-		else
-		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(3, 10.f, FColor::Red, FString(TEXT("NO WORLD POINTER")));
-
-			}
-
-		}
 		OnlineSessionsSubsystem->StartSession();
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::Printf(TEXT("PATH TO GAME MAP: %s"), *PathToGameMap));
-		}
-	}
-	else
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, TEXT("START BUTTON CLICKED ERROR"));
-		}
 	}
 }
 
