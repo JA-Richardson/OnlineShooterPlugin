@@ -17,7 +17,7 @@ class ONLINESESSIONS_API UMenuSystem : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup(int32 NumConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")));
+		void MenuSetup(int32 NumConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/Lobby?listen")), FString GamePath = FString(TEXT("/Game/ThirdPerson/Maps/Arena?listen")));
 
 protected:
 	virtual bool Initialize() override;
@@ -27,26 +27,30 @@ protected:
 	//Callbacks for custom delegates in UOnlineSessionsSubsystem
 	//
 	UFUNCTION()
-	void OnCreateSession(bool bWasSuccessful);
+		void OnCreateSession(bool bWasSuccessful);
 	void OnFindSession(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccesful);
 	void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
 	UFUNCTION()
-	void OnDestroySession(bool bWasSuccessful);
+		void OnDestroySession(bool bWasSuccessful);
 	UFUNCTION()
-	void OnStartSession(bool bWasSuccessful);
+		void OnStartSession(bool bWasSuccessful);
 
 private:
-	
+
 	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
+		class UButton* HostButton;
 	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinButton;
+		class UButton* JoinButton;
+	UPROPERTY(meta = (BindWidget))
+		class UButton* StartButton;
 
 	UFUNCTION()
-	void HostButtonClicked();
-	
+		void HostButtonClicked();
+
 	UFUNCTION()
-	void JoinButtonClicked();
+		void JoinButtonClicked();
+	UFUNCTION()
+		void StartButtonClicked();
 
 	void MenuTearDown();
 
@@ -55,4 +59,7 @@ private:
 
 	int32 NumPublicConnections{ 4 };
 	FString MatchType{ TEXT("FreeForAll") };
+	FString PathToLobby{ TEXT("") };
+	FString PathToGameMap = { TEXT("") };
+	
 };
