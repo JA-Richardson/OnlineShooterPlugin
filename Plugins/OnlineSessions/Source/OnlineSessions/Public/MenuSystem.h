@@ -19,6 +19,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void MenuSetup(int32 NumConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/Lobby?listen")), FString GamePath = FString(TEXT("/Game/ThirdPerson/Maps/Arena?listen")));
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* HostButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* JoinButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* StartButton;
+
 protected:
 	virtual bool Initialize() override;
 	virtual void NativeDestruct() override;
@@ -37,12 +44,7 @@ protected:
 
 private:
 
-	UPROPERTY(meta = (BindWidget))
-		class UButton* HostButton;
-	UPROPERTY(meta = (BindWidget))
-		class UButton* JoinButton;
-	UPROPERTY(meta = (BindWidget))
-		class UButton* StartButton;
+	
 
 	UFUNCTION()
 		void HostButtonClicked();
