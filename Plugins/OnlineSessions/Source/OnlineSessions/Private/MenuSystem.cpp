@@ -9,9 +9,10 @@
 #include "OnlineSubsystem.h"
 
 
-void UMenuSystem::MenuSetup(int32 NumConnections, FString TypeOfMatch)
+void UMenuSystem::MenuSetup(int32 NumConnections, FString TypeOfMatch, FString LobbyPath, FString GamePath)
 {
-
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
+	PathToGameMap = FString::Printf(TEXT("%s"), *GamePath);
 	NumPublicConnections = NumConnections;
 	MatchType = TypeOfMatch;
 	AddToViewport();
@@ -50,6 +51,7 @@ void UMenuSystem::MenuSetup(int32 NumConnections, FString TypeOfMatch)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnlineSessionsSubsystem is null"));
 	}
+	StartButton->SetIsEnabled(true);
 }
 
 bool UMenuSystem::Initialize()
@@ -65,6 +67,10 @@ bool UMenuSystem::Initialize()
 	if (JoinButton)
 	{
 		JoinButton->OnClicked.AddDynamic(this, &UMenuSystem::JoinButtonClicked);
+	}
+	if (StartButton)
+	{
+		StartButton->OnClicked.AddDynamic(this, &UMenuSystem::StartButtonClicked);
 	}
 	return true;
 }
@@ -82,7 +88,7 @@ void UMenuSystem::OnCreateSession(bool bWasSuccessful)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+			World->ServerTravel(PathToLobby);
 		}
 	}
 	else
@@ -91,6 +97,7 @@ void UMenuSystem::OnCreateSession(bool bWasSuccessful)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("Session Creation Failed"));
 		}
+		HostButton->SetIsEnabled(true);
 	}
 }
 
@@ -110,6 +117,10 @@ void UMenuSystem::OnFindSession(const TArray<FOnlineSessionSearchResult>& Search
 			OnlineSessionsSubsystem->JoinSession(Result);
 			return;
 		}
+	}
+	if (!bWasSuccesful || SearchResults.Num() == 0)
+	{
+		JoinButton->SetIsEnabled(true);
 	}
 }
 
@@ -131,6 +142,10 @@ void UMenuSystem::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			}
 		}
 	}
+	if (Result != EOnJoinSessionCompleteResult::Success)
+	{
+		JoinButton->SetIsEnabled(true);
+	}
 }
 
 void UMenuSystem::OnDestroySession(bool bWasSuccessful)
@@ -139,17 +154,24 @@ void UMenuSystem::OnDestroySession(bool bWasSuccessful)
 
 void UMenuSystem::OnStartSession(bool bWasSuccessful)
 {
+	if (bWasSuccessful)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->ServerTravel(PathToGameMap);
+		}
+	}
 }
 
 
 void UMenuSystem::HostButtonClicked()
 {
-	
 
+	HostButton->SetIsEnabled(false);
 	if (OnlineSessionsSubsystem)
 	{
 		OnlineSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
-		
 	}
 }
 
@@ -174,6 +196,18 @@ void UMenuSystem::JoinButtonClicked()
 				FColor::Yellow,
 				FString(TEXT("Finding Session")));
 		}
+		HostButton->SetIsEnabled(false);
+		JoinButton->SetIsEnabled(false);
+		StartButton->SetIsEnabled(false);
+	}
+}
+
+void UMenuSystem::StartButtonClicked()
+{
+	StartButton->SetIsEnabled(false);
+	if (OnlineSessionsSubsystem)
+	{
+		OnlineSessionsSubsystem->StartSession();
 	}
 }
 
